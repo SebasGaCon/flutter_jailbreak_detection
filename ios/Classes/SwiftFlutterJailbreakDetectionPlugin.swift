@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import IOSSecuritySuite
+
 public class SwiftFlutterJailbreakDetectionPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "flutter_jailbreak_detection", binaryMessenger: registrar.messenger())
@@ -9,17 +10,25 @@ public class SwiftFlutterJailbreakDetectionPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    DispatchQueue.main.async {
+    DispatchQueue.global(qos: .userInitiated).async {
       switch call.method {
       case "jailbroken":
-        let check2 = IOSSecuritySuite.amIJailbroken()
-        result(check2)
-        break
+        let isJailbroken = IOSSecuritySuite.amIJailbroken()
+        DispatchQueue.main.async {
+          result(isJailbroken)
+        }
+        
       case "developerMode":
-        result(IOSSecuritySuite.amIRunInEmulator())
-        break
+        let isEmulator = IOSSecuritySuite.amIRunInEmulator()
+        
+        DispatchQueue.main.async {
+          result(isEmulator)
+        }
+        
       default:
-        result(FlutterMethodNotImplemented)
+        DispatchQueue.main.async {
+          result(FlutterMethodNotImplemented)
+        }
       }
     }
   }
